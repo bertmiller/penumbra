@@ -8,9 +8,9 @@ use penumbra_crypto::{asset, merkle::NoteCommitmentTree, note};
 use penumbra_proto::Protobuf;
 use penumbra_stake::{
     IdentityKey, ValidatorInfo, ValidatorInfo, ValidatorState, ValidatorState, ValidatorStateEvent,
-    ValidatorStatus, ValidatorStatus, ValidatorStatus, STAKING_TOKEN_ASSET_ID,
-    STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_DENOM, STAKING_TOKEN_DENOM,
-    STAKING_TOKEN_DENOM,
+    ValidatorStateEvent, ValidatorStatus, ValidatorStatus, ValidatorStatus, ValidatorStatus,
+    STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_ASSET_ID,
+    STAKING_TOKEN_DENOM, STAKING_TOKEN_DENOM, STAKING_TOKEN_DENOM, STAKING_TOKEN_DENOM,
 };
 use penumbra_transaction::Transaction;
 use tendermint::abci::{self, ConsensusRequest as Request, ConsensusResponse as Response};
