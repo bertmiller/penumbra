@@ -7,8 +7,10 @@ use metrics::absolute_counter;
 use penumbra_crypto::{asset, merkle::NoteCommitmentTree, note};
 use penumbra_proto::Protobuf;
 use penumbra_stake::{
-    IdentityKey, ValidatorInfo, ValidatorState, ValidatorState, ValidatorStatus, ValidatorStatus,
+    IdentityKey, ValidatorInfo, ValidatorInfo, ValidatorState, ValidatorState, ValidatorStateEvent,
+    ValidatorStatus, ValidatorStatus, ValidatorStatus, STAKING_TOKEN_ASSET_ID,
     STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_ASSET_ID, STAKING_TOKEN_DENOM, STAKING_TOKEN_DENOM,
+    STAKING_TOKEN_DENOM,
 };
 use penumbra_transaction::Transaction;
 use tendermint::abci::{self, ConsensusRequest as Request, ConsensusResponse as Response};
@@ -208,7 +210,7 @@ impl Worker {
                 .unwrap();
 
             let pb_mut = &mut self.pending_block.as_mut().unwrap();
-            pb_mut.transition_validator_state(ck, ValidatorState::Slashed)?;
+            pb_mut.transition_validator_state(ck, ValidatorStateEvent::SlashValidator)?;
         }
 
         Ok(Default::default())
@@ -405,23 +407,14 @@ impl Worker {
         tracing::debug!(curr_base_rate = ?current_base_rate);
         tracing::debug!(?next_base_rate);
         let voting_power = next_rate.voting_power(delegation_token_supply, &next_base_rate);
-        let existing_state = pending_block
-            .block_validators
-            .iter()
-            .find(|v| v.validator.identity_key == identity_key)
-            .ok_or(anyhow::anyhow!(
-                "validator did not exist in pending block's block validators"
-            ))?
-            .status
-            .state
-            .clone();
         // If there's a pending state change, use that, otherwise use
         // the existing state.
         let next_state = pending_block
             .validator_state_machine
-            .get(&identity_key)
+            .get_state(&identity_key)
             .cloned()
-            .unwrap_or(existing_state);
+            // If the next state can't be grabbed from the validator state machine, something is wrong.
+            .unwrap();
         let next_status = ValidatorStatus {
             identity_key: identity_key.clone(),
             voting_power,
